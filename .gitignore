@@ -1,0 +1,13 @@
+__pychache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv/
+*.log
+.DS_Store
+.vscode/
+__pypackages__/
+*.sqllite3
+reports/
+metadata/
+datasets/

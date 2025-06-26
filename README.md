@@ -13,6 +13,7 @@ dataops-starter-kit/
 ├── tests/          # Tests unitarios
 ├── Dockerfile      # (opcional)
 ├── requirements.txt
+├── .gitignore
 └── README.md
 ```
 
@@ -26,6 +27,8 @@ dataops-starter-kit/
 
 ## 🚀 Cómo usarlo
 
+### Opción 1: Ejecutar localmente
+
 1. Instala dependencias:
 ```bash
 pip install -r requirements.txt
@@ -37,6 +40,27 @@ python app/main.py
 ```
 
 3. Ingresa la ruta de un CSV cuando lo solicite.
+
+### Opción 2: Ejecutar con Docker
+
+1. Construir la imagen:
+```bash
+docker build -t dataops-validator .
+```
+
+2. Ejecutar con volumen montado:
+```bash
+docker run -it -v $(pwd)/datasets:/app/datasets dataops-validator
+```
+
+> Asegúrate de montar también `reports/` y `metadata/` si quieres persistir esos archivos:
+```bash
+docker run -it \
+  -v $(pwd)/datasets:/app/datasets \
+  -v $(pwd)/reports:/app/reports \
+  -v $(pwd)/metadata:/app/metadata \
+  dataops-validator
+```
 
 ## 🧪 Tests
 
