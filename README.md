@@ -1,0 +1,57 @@
+# Validator - Starter Pack – Fase 1 (Validación y Versionado de Datasets)
+
+Este proyecto permite cargar un dataset en CSV, validarlo automáticamente usando reglas definidas, generar un reporte de calidad, y versionarlo de forma reproducible.
+
+## 📦 Estructura del Proyecto
+
+```
+dataops-starter-kit/
+├── app/            # Lógica del proyecto (validación, reportería, almacenamiento)
+├── datasets/       # Archivos validados y versionados
+├── reports/        # Reportes de errores y calidad
+├── metadata/       # Metadata del dataset validado
+├── tests/          # Tests unitarios
+├── Dockerfile      # (opcional)
+├── requirements.txt
+└── README.md
+```
+
+## ✅ Reglas de Validación
+- `id`: entero positivo
+- `name`: string
+- `email`: formato válido de correo
+- `age`: entre 18 y 99
+- `created_at`: hora que fue creado
+- `is_active`: booleano
+
+## 🚀 Cómo usarlo
+
+1. Instala dependencias:
+```bash
+pip install -r requirements.txt
+```
+
+2. Ejecuta el script:
+```bash
+python app/main.py
+```
+
+3. Ingresa la ruta de un CSV cuando lo solicite.
+
+## 🧪 Tests
+
+Para ejecutar tests:
+```bash
+pytest tests/
+```
+
+## 📌 Tecnologías usadas
+- Python
+- Pandas
+- Pandera
+- Pytest
+
+## 🔧 Futuras mejoras
+- Soporte para Excel
+- Validaciones configurables por archivo
+- Interfaz web con Streamlit
