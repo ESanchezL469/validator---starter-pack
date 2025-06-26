@@ -11,3 +11,4 @@ __pypackages__/
 reports/
 metadata/
 datasets/
+app/__pycache__/
