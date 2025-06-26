@@ -1,3 +1,6 @@
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 # Validator - Starter Pack – Fase 1 (Validación y Versionado de Datasets)
 
 Este proyecto permite cargar un dataset en CSV, validarlo automáticamente usando reglas definidas, generar un reporte de calidad, y versionarlo de forma reproducible.
@@ -74,6 +77,37 @@ pytest tests/
 - Pandas
 - Pandera
 - Pytest
+
+## 🛠️ Uso con Makefile
+
+También puedes ejecutar tareas comunes con `make`:
+
+### Instalar dependencias
+```bash
+make install
+```
+
+### Ejecutar la app localmente
+```bash
+make run
+```
+
+### Ejecutar los tests
+```bash
+make test
+```
+
+### Construir imagen Docker
+```bash
+make docker-build
+```
+
+### Ejecutar contenedor Docker
+```bash
+make docker-run
+```
+
+---
 
 ## 🔧 Futuras mejoras
 - Soporte para Excel

@@ -6,7 +6,7 @@ import pandas as pd
 
 def main():
 
-    path = 'datasets/data.csv'
+    path = input("Ingrese ruta del archivo CSV: ").strip()
 
     if not os.path.exists(path):
         print(f"File {path} does not exist.")
