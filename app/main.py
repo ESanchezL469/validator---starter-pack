@@ -12,16 +12,16 @@ def main():
         print(f"File {path} does not exist.")
         return
 
-    df = pd.read_csv(path)
-    is_valid, errors = validate_dataframe(df)
-    version, timestamp = save_dataframe(df,is_valid,errors)
-    generate_report(version, is_valid, errors, len(df), timestamp)
+    try:
+        df = pd.read_csv(path)
+        df['created_at'] = pd.to_datetime(df['created_at'], errors='coerce')
+        is_valid, errors = validate_dataframe(df)
+        version, timestamp = save_dataframe(df, is_valid, errors)
+        generate_report(version, is_valid, errors, len(df), timestamp)
+        print(f"Data processed successfully.")
+    except Exception as e:
+        print(f"An error occurred while processing the file: {e}")
+        return
 
 if __name__ == "__main__":
     main()
-    print("Data processing completed successfully.")
-else:
-    print("This script is intended to be run as the main module.")
-    print("Please run it directly.")
-    print("Exiting without processing.")
-    exit(1)

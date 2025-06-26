@@ -21,8 +21,8 @@ def calculate_hash(df) -> str:
     except Exception as e:
         print(f"Error calculating hash: {e}")
         return None
-    
-def save_dataframe(df, filename: str) -> tuple[str, str]:
+
+def save_dataframe(df, is_valid: bool, errors: dict) -> tuple[str, str]:
     """
     Save the DataFrame to a CSV file and return the file path.
     """
