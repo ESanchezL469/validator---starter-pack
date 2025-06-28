@@ -7,7 +7,7 @@ os.makedirs(REPORTS_DIR, exist_ok=True)
 
 def generate_report(version: str, is_valid: bool, errors: any, total_rows: int, 
                     timestamp: str, df: pd.DataFrame) -> None:
-    report_path = os.path.join(REPORTS_DIR, f"{version}_report.json")
+    report_path = os.path.join(REPORTS_DIR, f"{version}_report.txt")
 
     with open(report_path, 'w', encoding='utf-8') as report_file:
         report_file.write(f"Version: {version}\n")

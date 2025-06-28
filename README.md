@@ -1,4 +1,4 @@
-# Validator - Starter Pack – Fase 2 (Validación, Enriquecimiento y Metadata)
+# Validator - Starter Pack
 
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -17,15 +17,26 @@ cd validator---starter-pack.git
 ## 📦 Estructura del Proyecto
 
 ```
-dataops-starter-kit/
-├── app/            # Lógica del proyecto (validación, reportería, almacenamiento)
-├── datasets/       # Archivos validados y versionados
-├── reports/        # Reportes de errores y calidad
-├── metadata/       # Metadata del dataset validado
-├── tests/          # Tests unitarios
-├── Dockerfile      # (opcional)
-├── requirements.txt
+.
+├── app/
+│   ├── main.py
+│   ├── validator.py
+│   ├── enricher.py
+│   ├── reporter.py
+│   ├── metadata_writer.py
+│   ├── storage.py
+│   ├── ingestor.py
+│   └── source_tracker.py
+├── datasets/
+├── reports/
+├── metadata/
+├── tests/
+│   └── test_pipeline_input_folder.py
+├── .env
 ├── .gitignore
+├── requirements.txt
+├── Dockerfile
+├── Makefile
 └── README.md
 ```
 
@@ -143,7 +154,9 @@ make docker-run
 
 ---
 
-## 🔧 Futuras mejoras
-- Soporte para Excel
-- Validaciones configurables por archivo
-- Interfaz web con Streamlit
+## 🔮 Fase siguiente
+
+- Generar reportes HTML/JSON
+- Agregar `great_expectations` o `pandas-profiling`
+- Orquestación con Airflow o Dagster
+- Soporte para almacenamiento remoto (S3, GCS, etc.)

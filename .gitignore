@@ -12,3 +12,4 @@ reports/
 metadata/
 datasets/
 app/__pycache__/
+sample.csv

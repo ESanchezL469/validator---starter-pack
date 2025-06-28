@@ -7,7 +7,7 @@ run:
 	PYTHONPATH=. python app/main.py
 
 test:
-	pytest tests/
+	PYTHONPATH=. pytest tests/test_end_to_end.py
 
 docker-build:
 	docker build -t dataops-validator .
