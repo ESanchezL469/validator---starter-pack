@@ -2,3 +2,5 @@ pandas
 pandera
 pytest
 dotenv
+ydata-profiling
+setuptools

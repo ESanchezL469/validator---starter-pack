@@ -1,10 +1,17 @@
 # Makefile - DataOps Starter Kit
 
+INPUT ?= ""
+FOLDER ?= "."
+PROFILE ?= false
+
 install:
 	pip install -r requirements.txt
 
 run:
-	PYTHONPATH=. python app/main.py
+	PYTHONPATH=. python app/main.py \
+		$(if $(filter-out false,$(PROFILE)),--profile,) \
+		$(if $(INPUT),--input=$(INPUT),) \
+		$(if $(filter-out .,$(FOLDER)),--input-folder "$(FOLDER)",)
 
 test:
 	PYTHONPATH=. pytest tests/test_end_to_end.py

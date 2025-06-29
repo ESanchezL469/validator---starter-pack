@@ -11,5 +11,6 @@ __pypackages__/
 reports/
 metadata/
 datasets/
+profiles/
 app/__pycache__/
 sample.csv
