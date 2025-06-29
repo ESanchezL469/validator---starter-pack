@@ -63,13 +63,18 @@ def main():
 
     parser = argparse.ArgumentParser(description="Data Ingestion and Processing Tool")
     parser.add_argument('--input','-i', type=str, help='Path to the CSV or Excel file')
-    parser.add_argument('--input-folder', '-f', type=str, help='Directory to search for files', default='.')
+    parser.add_argument('--input-folder', '-f', type=str, help='Directory to search for files')
     parser.add_argument('--profile', '-j', action='store_true', help='Enable profile report generation')
     args = parser.parse_args()
 
     input_path = []
 
-    if args.input_folder:
+    if args.input:
+        if not os.path.isfile(args.input):
+            print(f"File {args.input} does not exist.")
+            return
+        input_path = [args.input]
+    elif args.input_folder:
         if not os.path.isdir(args.input_folder):
             print(f"Directory {args.input_folder} does not exist.")
             return
@@ -77,8 +82,6 @@ def main():
         if not input_path:
             print(f"No valid files found in directory {args.input_folder}.")
             return
-    elif args.input:
-        input_path = args.input
     else:
         input_path = [input("Ingrese ruta del archivo o directorio: ").strip()]
 

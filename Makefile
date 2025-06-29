@@ -14,7 +14,7 @@ run:
 		$(if $(filter-out .,$(FOLDER)),--input-folder "$(FOLDER)",)
 
 test:
-	PYTHONPATH=. pytest tests/test_end_to_end.py
+	PYTHONPATH=. pytest tests/
 
 docker-build:
 	docker build -t dataops-validator .
