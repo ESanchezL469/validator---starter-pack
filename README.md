@@ -26,11 +26,14 @@ cd validator---starter-pack.git
 │   ├── metadata_writer.py
 │   ├── storage.py
 │   ├── ingestor.py
-│   └── source_tracker.py
+│   ├── source_tracker.py
+│   └── profiler.py
 ├── datasets/
 ├── reports/
 ├── metadata/
+├── profiles/
 ├── tests/
+│   ├── test_pipeline_input_file.py
 │   └── test_pipeline_input_folder.py
 ├── .env
 ├── .gitignore
@@ -101,12 +104,13 @@ docker build -t dataops-validator .
 docker run -it -v $(pwd)/datasets:/app/datasets dataops-validator
 ```
 
-> Asegúrate de montar también `reports/` y `metadata/` si quieres persistir esos archivos:
+> Asegúrate de montar también `reports/`, `metadata/` y `profiles/` si quieres persistir los resultados.
 ```bash
 docker run -it \
   -v $(pwd)/datasets:/app/datasets \
   -v $(pwd)/reports:/app/reports \
   -v $(pwd)/metadata:/app/metadata \
+  -v $(pwd)/metadata:/app/profiles \
   dataops-validator
 ```
 
@@ -121,42 +125,33 @@ pytest tests/
 - Python
 - Pandas
 - Pandera
+- ydata-profiling
 - Pytest
+- setuptools
 
 ## 🛠️ Uso con Makefile
 
-También puedes ejecutar tareas comunes con `make`:
+Tareas comunes:
 
-### Instalar dependencias
 ```bash
-make install
+make install        # Instala dependencias
+make run            # Ejecuta el validador
+make test           # Corre pruebas
+make docker-build   # Construye imagen Docker
+make docker-run     # Ejecuta el contenedor
 ```
 
-### Ejecutar la app localmente
-```bash
-make run
-```
-
-### Ejecutar los tests
-```bash
-make test
-```
-
-### Construir imagen Docker
-```bash
-make docker-build
-```
-
-### Ejecutar contenedor Docker
-```bash
-make docker-run
-```
+## 🗂️ Archivos generados
+- `datasets/`: archivos validados con nombre `{hash}_data.csv`
+- `reports/`: reportes de calidad `{hash}_report.txt`
+- `metadata/`: metadatos `{hash}_metadata.json`
+- `profiles/`: perfil exploratorio `{hash}_profile.html`
 
 ---
 
-## 🔮 Fase siguiente
+## 🔮 Próximas fases
 
-- Generar reportes HTML/JSON
-- Agregar `great_expectations` o `pandas-profiling`
+- Integrar `great_expectations` como capa de validación extendida
+- Soporte para almacenamiento en S3 o GCS
+- Logging estructurado
 - Orquestación con Airflow o Dagster
-- Soporte para almacenamiento remoto (S3, GCS, etc.)
