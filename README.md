@@ -1,38 +1,45 @@
-# Validator - Starter Pack
+# ⚙️ Validator - Starter Pack
 
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Este proyecto permite cargar un dataset en CSV, validarlo automáticamente usando reglas definidas, generar un reporte de calidad, y versionarlo de forma reproducible.
+A modular and reproducible **Data Validation Starter Pack** for data engineers and analysts.
+Easily validate CSV datasets, enrich and profile data, generate quality reports, and track metadata and versions — all from a single command.
 
-## 📥 Clonar el proyecto
+---
 
-Clona el repositorio y entra al directorio:
+## 🚀 Features
 
-```bash
-git clone https://github.com/tu_usuario/validator---starter-pack.git
-cd validator---starter-pack.git
-```
+* ✅ Schema Validation with custom rules
+* ✅ Automatic Data Enrichment
+* ✅ Exploratory Profiling (`ydata-profiling`)
+* ✅ Quality Report Generation
+* ✅ Metadata Versioning (via content hashing)
+* ✅ Modular CLI Execution
+* ✅ Docker Support
+* ✅ Test Suite with Pytest
 
-## 📦 Estructura del Proyecto
+---
 
-```
-.
+## 📁 Project Structure
+
+```text
+validator-starter-pack/
 ├── app/
-│   ├── main.py
-│   ├── validator.py
-│   ├── enricher.py
-│   ├── reporter.py
-│   ├── metadata_writer.py
-│   ├── storage.py
-│   ├── ingestor.py
-│   ├── source_tracker.py
-│   └── profiler.py
-├── datasets/
-├── reports/
-├── metadata/
-├── profiles/
-├── tests/
+│   ├── main.py                 # Entry point
+│   ├── validator.py            # Validation logic (with Pandera)
+│   ├── enricher.py             # Adds derived fields
+│   ├── reporter.py             # Generates .txt reports
+│   ├── profiler.py             # Profiling with ydata-profiling
+│   ├── metadata_writer.py      # Metadata JSON generation
+│   ├── storage.py              # File handling & versioning
+│   ├── ingestor.py             # Loaders
+│   └── source_tracker.py       # Hashing & tracking
+├── datasets/                   # Input files
+├── reports/                    # Quality reports (.txt)
+├── metadata/                   # Metadata files (.json)
+├── profiles/                   # Exploratory profiles (.html)
+├── tests/                      # Pytest-based test suite
 │   ├── test_pipeline_input_file.py
 │   └── test_pipeline_input_folder.py
 ├── .env
@@ -43,115 +50,134 @@ cd validator---starter-pack.git
 └── README.md
 ```
 
-## ✅ Reglas de Validación
-- `id`: entero positivo
-- `name`: string
-- `email`: formato válido de correo
-- `age`: entre 18 y 99
-- `created_at`: hora que fue creado
-- `is_active`: booleano
+---
 
-### 🧠 Enriquecimiento automático
+## 🔍 Validation Rules (Example Schema)
 
-Al cargar un archivo, el sistema agrega automáticamente:
+* `id`: Positive integer
+* `name`: Non-empty string
+* `email`: Valid email format
+* `age`: Between 18 and 99
+* `created_at`: Valid datetime
+* `is_active`: Boolean
 
-- `age_group`: clasificación en joven, adulto o senior
-- `signup_year`: año de registro a partir de `created_at`
+---
 
-### 📄 Reporte automático
+## 🧠 Automatic Enrichment
 
-Se genera un archivo `.txt` con:
+Automatically computed columns:
 
-- Errores por columna
-- Reglas fallidas
-- Estadísticas básicas (`describe()`) si los datos son válidos
+* `age_group`: Classified as `"young"`, `"adult"`, or `"senior"`
+* `signup_year`: Derived from `created_at`
 
-### 📊 Metadata estructurada
+---
 
-Para cada archivo procesado se crea un `.json` con:
+## 📄 Output Files
 
-- Versión (hash del contenido)
-- Timestamp
-- Columnas presentes
-- Resultado de validación
-- Total de filas
+* `datasets/`: Validated CSV files, renamed with `{hash}_data.csv`
+* `reports/`: Text reports `{hash}_report.txt`
+* `metadata/`: Metadata JSON `{hash}_metadata.json`
+* `profiles/`: Exploratory profile `{hash}_profile.html`
 
-## 🚀 Cómo usarlo
+---
 
-### Opción 1: Ejecutar localmente
+## ⚙️ How to Use
 
-1. Instala dependencias:
+### ✅ Option 1: Run Locally
+
+1. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Ejecuta el script:
+2. Run the validator:
+
 ```bash
 python app/main.py
 ```
 
-3. Ingresa la ruta de un CSV cuando lo solicite.
+3. Provide the path to your CSV file when prompted.
 
-### Opción 2: Ejecutar con Docker
+---
 
-1. Construir la imagen:
+### 🛣️ Option 2: Run with Docker
+
+1. Build the image:
+
 ```bash
 docker build -t dataops-validator .
 ```
 
-2. Ejecutar con volumen montado:
+2. Run it with mounted volume:
+
 ```bash
 docker run -it -v $(pwd)/datasets:/app/datasets dataops-validator
 ```
 
-> Asegúrate de montar también `reports/`, `metadata/` y `profiles/` si quieres persistir los resultados.
+> Optional: Mount `reports/`, `metadata/` and `profiles/` for result persistence:
+
 ```bash
 docker run -it \
   -v $(pwd)/datasets:/app/datasets \
   -v $(pwd)/reports:/app/reports \
   -v $(pwd)/metadata:/app/metadata \
-  -v $(pwd)/metadata:/app/profiles \
+  -v $(pwd)/profiles:/app/profiles \
   dataops-validator
 ```
 
-## 🧪 Tests
+---
 
-Para ejecutar tests:
+## 🤖 Run Tests
+
 ```bash
 pytest tests/
 ```
 
-## 📌 Tecnologías usadas
-- Python
-- Pandas
-- Pandera
-- ydata-profiling
-- Pytest
-- setuptools
+---
 
-## 🛠️ Uso con Makefile
-
-Tareas comunes:
+## 🛠️ Makefile Shortcuts
 
 ```bash
-make install        # Instala dependencias
-make run            # Ejecuta el validador
-make test           # Corre pruebas
-make docker-build   # Construye imagen Docker
-make docker-run     # Ejecuta el contenedor
+make install        # Install dependencies
+make run            # Run the validator
+make test           # Run tests
+make docker-build   # Build the Docker image
+make docker-run     # Run with Docker
 ```
-
-## 🗂️ Archivos generados
-- `datasets/`: archivos validados con nombre `{hash}_data.csv`
-- `reports/`: reportes de calidad `{hash}_report.txt`
-- `metadata/`: metadatos `{hash}_metadata.json`
-- `profiles/`: perfil exploratorio `{hash}_profile.html`
 
 ---
 
-## 🔮 Próximas fases
+## 📌 Tech Stack
 
-- Integrar `great_expectations` como capa de validación extendida
-- Soporte para almacenamiento en S3 o GCS
-- Logging estructurado
-- Orquestación con Airflow o Dagster
+* Python 3.11
+* Pandas
+* Pandera (schema validation)
+* ydata-profiling
+* Pytest
+* Docker
+* Make (optional)
+
+---
+
+## 🔮 Next Steps (Planned Roadmap)
+
+* 🌐 REST API with FastAPI (for DQaaS model)
+* 🧪 Integration of `great_expectations` for extended validation
+* ☁️ Cloud storage support (S3, GCS)
+* 📊 Orchestration with Airflow or Dagster
+* 📊 Streamlit UI for simplified reporting
+* 🗂️ PostgreSQL for metadata persistence
+* 🔔 Slack/Email alerting for failures
+
+---
+
+## 📣 Contributions & Feedback
+
+This project is open for contributions! Feel free to open issues, pull requests, or share feature ideas.
+
+---
+
+## 📄 License
+
+Licensed under the MIT License.
