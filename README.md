@@ -20,7 +20,7 @@ A robust Data Quality as a Service (DQaaS) platform that enables you to:
 ```bash
 git clone https://github.com/your-org/validator-starter-pack.git
 cd validator-starter-pack
-pip install -r requirements.txt
+make install
 ```
 
 ### 2. Set up environment variables

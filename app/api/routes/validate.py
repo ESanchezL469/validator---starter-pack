@@ -1,14 +1,15 @@
 import os
 import tempfile
 import shutil
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
 from fastapi.responses import JSONResponse
 
 from app.api.validator import DatasetValidator
+from app.api.security import verify_api_key
 
 router = APIRouter()
 
-@router.post("/")
+@router.post("/",dependencies=[Depends(verify_api_key)])
 def validate_file(file: UploadFile = File(...)):
     try:
         suffix = os.path.splitext(file.filename)[1]
