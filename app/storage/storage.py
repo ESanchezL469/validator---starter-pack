@@ -1,9 +1,8 @@
 import os
 import hashlib
+import pandas as pd
 from datetime import datetime
-
-DATASETS_DIR = 'datasets'
-os.makedirs(DATASETS_DIR, exist_ok=True)
+from app.config import DATASETS_DIR
 
 def calculate_hash(df) -> str:
     """
@@ -22,17 +21,22 @@ def calculate_hash(df) -> str:
         print(f"Error calculating hash: {e}")
         return None
 
-def save_dataframe(df, is_valid: bool, errors: dict) -> tuple[str, str]:
+def save_dataframe(df: pd.DataFrame, format: str = 'csv') -> tuple[str, str]:
     """
     Save the DataFrame to a CSV file and return the file path.
     """
     try:
         version: str = calculate_hash(df)
         if version is None:
-            raise ValueError("Failed to calculate hash for the DataFrame.") 
+            raise ValueError("Failed to calculate hash for the DataFrame.")
         timestamp: str = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_path: str = os.path.join(DATASETS_DIR, f"{version}_data.csv")
-        df.to_csv(file_path, index=False)
+
+        file_path: str = os.path.join(DATASETS_DIR, f"{version}_data.{format}")
+        if format == 'csv':
+            df.to_csv(file_path, index=False)
+        elif format == 'parquet':
+            df.to_parquet(file_path,index=False)
+
         return version, timestamp
     except Exception as e:
         print(f"Error saving DataFrame: {e}")

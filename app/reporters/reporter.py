@@ -1,13 +1,11 @@
 import os
 import pandas as pd
 from datetime import datetime
+from app.config import REPORTS_DIR
 
-REPORTS_DIR = 'reports'
-os.makedirs(REPORTS_DIR, exist_ok=True)
-
-def generate_report(version: str, is_valid: bool, errors: any, total_rows: int, 
-                    timestamp: str, df: pd.DataFrame) -> None:
-    report_path = os.path.join(REPORTS_DIR, f"{version}_report.txt")
+def generate_report(version: str, is_valid: bool, errors: any, timestamp: str, df: pd.DataFrame) -> None:
+    report_path: str = os.path.join(REPORTS_DIR, f"{version}_report.txt")
+    total_rows: int = len(df)
 
     with open(report_path, 'w', encoding='utf-8') as report_file:
         report_file.write(f"Version: {version}\n")

@@ -1,17 +1,18 @@
-# Makefile - DataOps Starter Kit
-
+# Makefile - Validator - Starter Pack
 INPUT ?= ""
 FOLDER ?= "."
 PROFILE ?= false
 
 install:
-	pip install -r requirements.txt
+	pip install -r requirements.txt --upgrade --force-reinstall
+
+clean:
+	find . -type d -name '__pycache__' -exec rm -r {} + && \
+	find . -type f -name '*.pyc' -delete && \
+	rm -rf .pytest_cache 
 
 run:
-	PYTHONPATH=. python app/main.py \
-		$(if $(filter-out false,$(PROFILE)),--profile,) \
-		$(if $(INPUT),--input=$(INPUT),) \
-		$(if $(filter-out .,$(FOLDER)),--input-folder "$(FOLDER)",)
+	PYTHONWARNINGS=ignore python run.py
 
 test:
 	PYTHONPATH=. pytest tests/

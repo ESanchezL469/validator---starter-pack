@@ -1,7 +1,5 @@
 import os
-import json
-
-METADATA_DIR = 'metadata'
+from app.config import METADATA_DIR 
 
 def version_exists(version: str) -> bool:
     """

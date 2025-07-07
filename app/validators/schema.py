@@ -1,6 +1,7 @@
 import pandera.pandas as pa
 import pandas as pd
 from pandera import Column, DataFrameSchema, Check
+from pandera.errors import SchemaError,SchemaErrors
 
 schema = DataFrameSchema({
     "id": Column(pa.Int, Check(lambda x: x > 0), nullable=False),
@@ -11,7 +12,7 @@ schema = DataFrameSchema({
     "is_active": Column(pa.Bool, nullable=False),
 })
 
-def validate_dataframe(df):
+def validate_dataframe(df:pd.DataFrame):
     """
     Validate a Pandas DataFrame against a predefined schema.
     Args:
@@ -21,9 +22,10 @@ def validate_dataframe(df):
         errors if any.
     """
     try:
+        df['created_at'] = pd.to_datetime(df['created_at'], errors='coerce')
         schema.validate(df)
         return True, {}
-    except pa.errors.SchemaError as e:
+    except (SchemaError,SchemaErrors) as e:
         failure_df = getattr(e, 'failure_cases', None)
 
         if isinstance(failure_df, pd.DataFrame):
