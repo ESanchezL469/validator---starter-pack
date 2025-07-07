@@ -2,7 +2,9 @@ import os
 import hashlib
 import pandas as pd
 from datetime import datetime
+
 from app.config import DATASETS_DIR
+from app.core.logger import logger
 
 def calculate_hash(df) -> str:
     """
@@ -18,7 +20,7 @@ def calculate_hash(df) -> str:
         raw_bytes = df.to_csv(index=False).encode('utf-8')
         return hashlib.sha256(raw_bytes).hexdigest()
     except Exception as e:
-        print(f"Error calculating hash: {e}")
+        logger.exception(f'Error calculating hash: {str(e)}')
         return None
 
 def save_dataframe(df: pd.DataFrame, format: str = 'csv') -> tuple[str, str]:
@@ -39,5 +41,5 @@ def save_dataframe(df: pd.DataFrame, format: str = 'csv') -> tuple[str, str]:
 
         return version, timestamp
     except Exception as e:
-        print(f"Error saving DataFrame: {e}")
+        logger.exception(f'Error saving DataFrame: {str(e)}')
         return None, None

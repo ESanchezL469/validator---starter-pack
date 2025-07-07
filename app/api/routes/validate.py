@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.validator import DatasetValidator
 from app.api.security import verify_api_key
+from app.core.logger import logger
 
 router = APIRouter()
 
@@ -17,8 +18,12 @@ def validate_file(file: UploadFile = File(...)):
             shutil.copyfileobj(file.file, tmp)
             temp_path = tmp.name
         
+        logger.info(f'File loaded: {file.filename}')
+
         validator = DatasetValidator(path=temp_path, enableProfile=True)
         result_msg = validator.run_pipeline()
+
+        logger.info('Validation successful')
 
         return JSONResponse({
             "status": "success",

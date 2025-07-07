@@ -10,9 +10,9 @@ datasets/
 profiles/
 metadatas/
 files/
+logs/
 .pytest_cache/
 .venv/
 
 .env
-
 *.pyc
