@@ -1,39 +1,73 @@
-import pandera.pandas as pa
 import pandas as pd
-from pandera import Column, DataFrameSchema, Check
-from pandera.errors import SchemaError,SchemaErrors
+import re
 
-schema = DataFrameSchema({
-    "id": Column(pa.Int, Check(lambda x: x > 0), nullable=False),
-    "name": Column(pa.String, Check.str_length(min_value=1), nullable=False),
-    "email": Column(pa.String, Check.str_matches(r"^[^@\s]+@[^@\s]+\.[^@\s]+$"), nullable=False),
-    "age": Column(pa.Int, Check.in_range(18, 99), nullable=False),
-    "created_at": Column(pa.DateTime, nullable=False),
-    "is_active": Column(pa.Bool, nullable=False),
-})
+class DataframeValidator:
 
-def validate_dataframe(df:pd.DataFrame):
-    """
-    Validate a Pandas DataFrame against a predefined schema.
-    Args:
-        df (pd.DataFrame): The DataFrame to validate.
-    Returns:
-        tuple: A tuple containing a boolean indicating if the DataFrame is valid and a dictionary of
-        errors if any.
-    """
-    try:
-        df['created_at'] = pd.to_datetime(df['created_at'], errors='coerce')
-        schema.validate(df)
-        return True, {}
-    except (SchemaError,SchemaErrors) as e:
-        failure_df = getattr(e, 'failure_cases', None)
+    def __init__(self, df:pd.DataFrame):
+        self.df: pd.DataFrame = df
+        self.violations: list[dict] = []
 
-        if isinstance(failure_df, pd.DataFrame):
-            grouped_errors = {
-                column: group[['failure_case', 'check']].to_dict(orient='records')
-                for column, group in failure_df.groupby('column')
-            }
-        else:
-            grouped_errors = {"error": str(e)}
+    def validate_not_null(self, column:str) -> None:
+        invalid_rows: pd.DataFrame = self.df[self.df[column].isnull()]
+        if not invalid_rows.empty:
+            self.violations.append({
+                "column": column,
+                "rule": "not_null",
+                "description": f"Null values in column '{column}'",
+                "invalid_count": len(invalid_rows),
+                "sample_invalid_values": [None]
+            })
+
+    def validate_range(self, column:str, min_val:float, max_val:float) -> None:
+        invalid_rows: pd.DataFrame = self.df[~self.df[column].between(min_val, max_val)]
+        if not invalid_rows.empty:
+            self.violations.append({
+                "column": column,
+                "rule": "range",
+                "description": f"Out of range ({min_val}-{max_val}) in '{column}'",
+                "invalid_count": len(invalid_rows),
+                "sample_invalid_values": invalid_rows[column].dropna().unique().tolist()[:5]
+            })
+
+    def validate_regex(self, column:str, pattern:str) -> None:
+        invalid_rows: pd.DataFrame = self.df[~self.df[column].astype(str).str.match(pattern)]
+        if not invalid_rows.empty:
+            self.violations.append({
+                "column": column,
+                "rule": "regex",
+                "description": f"No found pattern '{pattern}' in '{column}'",
+                "invalid_count": len(invalid_rows),
+                "sample_invalid_values": invalid_rows[column].dropna().unique().tolist()[:5]
+            })
+
+    def validate_unique(self, column:str) -> None:
+        duplicated: pd.DataFrame = self.df[self.df.duplicated(subset=[column], keep=False)]
+        if not duplicated.empty:
+            self.violations.append({
+                "column": column,
+                "rule": "unique",
+                "description": f"Duplicate found in '{column}'",
+                "invalid_count": len(duplicated),
+                "sample_invalid_values": duplicated[column].dropna().unique().tolist()[:5]
+            })
+
+    def apply_rules(self, rules:list[dict]) -> list[dict]:
+
+        for rule in rules:
             
-        return False, grouped_errors
+            type = rule["rule"]
+            col = rule["column"]
+
+            match type:
+                case "not_null":
+                    self.validate_not_null(col)
+                case "range":
+                    self.validate_range(col,rule["min"],rule["max"])
+                case "regex":
+                    self.validate_regex(col,rule["pattern"])
+                case "unique":
+                    self.validate_unique(col)
+                case _:
+                    continue
+
+        return self.violations

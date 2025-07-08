@@ -16,25 +16,26 @@ def validate_file(file: UploadFile = File(...)):
         suffix = os.path.splitext(file.filename)[1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
             shutil.copyfileobj(file.file, tmp)
-            temp_path = tmp.name
+            temp_path: str = tmp.name
         
         logger.info(f'File loaded: {file.filename}')
 
-        validator = DatasetValidator(path=temp_path, enableProfile=True)
-        result_msg = validator.run_pipeline()
+        validator: DatasetValidator = DatasetValidator(path=temp_path, enableProfile=True)
+        result_msg: str = validator.run_pipeline()
 
         logger.info('Validation successful')
 
         return JSONResponse({
-            "status": "success",
+            "status": "success" if len(validator.error) == 0 else "error",
+            "filename": file.filename,
             "message": result_msg,
-            "is_valid": validator.is_valid,
-            "hash": validator.version,
-            "total_rows": len(validator.data),
-            "errors": validator.error,
-            "report_url": f"/report/{validator.version}",
-            "metadata_url": f"/metadatas/{validator.version}",
-            "profile_url": f"/profile/{validator.version}" if validator.enableProfile else None
+            "summary": {
+                "total_rows": validator.data.shape[0],
+                "total_columns": validator.data.shape[1],
+                "errors_found": sum(e["invalid_count"] for e in validator.error),
+                "validation_passed": len(validator.error) == 0
+            },
+            "violations":validator.error
         })
 
     except Exception as e:
