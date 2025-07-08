@@ -1,17 +1,18 @@
-import pytest
 import json
-import pandas as pd
-from unittest.mock import patch
-from app.metadata.metadata import save_metadata
 from unittest.mock import MagicMock
+
+from pandas import DataFrame
+
+from app.metadata.metadata import save_metadata
 
 # ----------------------------
 # Successful Tests
 # ----------------------------
 
-def test_save_metadata_success(tmp_path,monkeypatch):
 
-    monkeypatch.setattr('app.metadata.metadata.METADATA_DIR',str(tmp_path))
+def test_save_metadata_success(tmp_path, monkeypatch):
+
+    monkeypatch.setattr("app.metadata.metadata.METADATA_DIR", str(tmp_path))
 
     mock_validator = MagicMock()
     mock_validator.version = "test123"
@@ -20,7 +21,7 @@ def test_save_metadata_success(tmp_path,monkeypatch):
     mock_validator.error = {}
     mock_validator.path = "input.csv"
     mock_validator.previous = None
-    mock_validator.data = pd.DataFrame({"id": [1, 2], "name": ["Alice", "Bob"]})
+    mock_validator.data = DataFrame({"id": [1, 2], "name": ["Alice", "Bob"]})
 
     save_metadata(mock_validator)
 
@@ -38,9 +39,11 @@ def test_save_metadata_success(tmp_path,monkeypatch):
         assert metadata["replaces"] is None
         assert metadata["errors"] == {}
 
+
 # ----------------------------
 # Error Tests
-# ---------------------------- 
+# ----------------------------
 
-def test_save_metadata_fail(tmp_path,monkeypatch):
+
+def test_save_metadata_fail(tmp_path, monkeypatch):
     pass

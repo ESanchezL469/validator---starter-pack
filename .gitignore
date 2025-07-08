@@ -4,7 +4,6 @@ app/__pycache__/
 tests/*/__pycache__/
 tests/__pycache__/
 
-
 reports/
 datasets/
 profiles/
@@ -13,6 +12,8 @@ files/
 logs/
 .pytest_cache/
 .venv/
+venv/
+.mypy_cache/
 .coverage
 
 .env

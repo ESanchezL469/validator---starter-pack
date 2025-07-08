@@ -1,6 +1,22 @@
-def validate_rule_structure(rules: list[dict]) -> list[dict]:
-    
-    errors = []
+def validate_rule_structure(rules: list[dict]) -> list[str]:
+    """
+    Validates the structure of a list of validation rules.
+
+    Each rule must be a dictionary containing at least:
+    - 'column': str
+    - 'rule': str
+
+    For certain rule types, additional fields are required:
+    - 'range': requires 'min' (int/float) and 'max' (int/float)
+    - 'regex': requires 'pattern' (str)
+
+    Args:
+        rules (List[Dict]): A list of dictionaries representing rules.
+
+    Returns:
+        List[str]: A list of human-readable error messages found in the rule.
+    """
+    errors: list[str] = []
 
     for i, rule in enumerate(rules):
         if not isinstance(rule, dict):
@@ -22,9 +38,11 @@ def validate_rule_structure(rules: list[dict]) -> list[dict]:
             max_val = rule.get("max")
 
             if min_val is None or max_val is None:
-                errors.append(f"Regla #{i}: tipo 'range' requiere 'min' y 'max'.")
-            elif not isinstance(min_val, (int, float)) or not isinstance(max_val, (int, float)):
-                errors.append(f"Regla #{i}: 'min' y 'max' deben ser numéricos.")
+                errors.append(f"Regla #{i}: tipo 'range' incompleto.")
+            elif not isinstance(min_val, (int, float)) or not isinstance(
+                max_val, (int, float)
+            ):
+                errors.append(f"Regla #{i}: 'min' y 'max' erroneos.")
 
         elif rule_type == "regex":
             pattern = rule.get("pattern")
@@ -38,6 +56,6 @@ def validate_rule_structure(rules: list[dict]) -> list[dict]:
             pass
 
         else:
-            errors.append(f"Regla #{i}: tipo de regla desconocido: '{rule_type}'.")
+            errors.append("Regla : tipo de regla desconocido.")
 
     return errors

@@ -1,13 +1,14 @@
 import json
 import os
-import pandas as pd
+from typing import Any
 
 from app.config import METADATA_DIR
 
-def save_metadata(val: object = None) -> None:
+
+def save_metadata(val: Any) -> None:
     """
     Save metadata to a JSON file.
-    
+
     Args:
         version (str): The version of the dataset.
         timestamp (str): The timestamp when the dataset was processed.
@@ -21,7 +22,7 @@ def save_metadata(val: object = None) -> None:
         str: The path to the saved metadata file.
     """
     metadata_path = os.path.join(METADATA_DIR, f"{val.version}_metadata.json")
-    
+
     metadata = {
         "version": val.version,
         "timestamp": val.timestamp,
@@ -30,8 +31,8 @@ def save_metadata(val: object = None) -> None:
         "is_valid": val.is_valid,
         "source_file": val.path,
         "replaces": val.previous,
-        "errors": val.error
+        "errors": val.error,
     }
 
-    with open(metadata_path, 'w', encoding='utf-8') as metadata_file:
+    with open(metadata_path, "w", encoding="utf-8") as metadata_file:
         json.dump(metadata, metadata_file, indent=4)

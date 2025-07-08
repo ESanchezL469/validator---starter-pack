@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,5 +9,5 @@ METADATA_DIR = os.getenv("METADATA_DIR", "metadatas")
 REPORTS_DIR = os.getenv("REPORTS_DIR", "reports")
 PROFILES_DIR = os.getenv("PROFILES_DIR", "profiles")
 
-API_PORT = int(os.getenv("API_PORT",8080))
+API_PORT = int(os.getenv("API_PORT", 8080))
 API_KEY = os.getenv("API_KEY")

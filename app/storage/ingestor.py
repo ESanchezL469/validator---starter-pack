@@ -1,9 +1,11 @@
 from pathlib import Path
+
 import pandas as pd
 
 from app.core.logger import logger
 
-def load_file(file_path: str) -> tuple[pd.DataFrame,str]:
+
+def load_file(file_path: str) -> tuple[pd.DataFrame, str]:
     """
     Load a file into a pandas DataFrame based on its extension.
     args:
@@ -19,16 +21,16 @@ def load_file(file_path: str) -> tuple[pd.DataFrame,str]:
 
     try:
         match ext:
-            case '.csv':
+            case ".csv":
                 return pd.read_csv(file_path), ext
-            case '.xlsx' | '.xls':
+            case ".xlsx" | ".xls":
                 return pd.read_excel(file_path), ext
-            case '.json':
+            case ".json":
                 return pd.read_json(file_path), ext
-            case '.parquet':
+            case ".parquet":
                 return pd.read_parquet(file_path), ext
             case _:
-                return pd.DataFrame(),f"Unsupported file extension: {ext}"
+                return pd.DataFrame(), f"Unsupported file extension: {ext}"
     except Exception as e:
-        logger.exception(f'Error loading file: {str(e)}')
-        return pd.DataFrame(), ''
+        logger.exception(f"Error loading file: {str(e)}")
+        return pd.DataFrame(), ""

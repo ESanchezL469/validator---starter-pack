@@ -1,23 +1,30 @@
-import pytest
+from unittest.mock import MagicMock, patch
+
 import pandas as pd
-from unittest.mock import patch, MagicMock
+import pytest
+
 from app.api.validator import DatasetValidator  # Ajusta el path real
+
 
 @pytest.fixture
 def test_df():
-    return pd.DataFrame({
-        "id": [1, 2],
-        "email": ["a@a.com", "b@b.com"],
-        "age": [25, 30],
-        "name": ["Ana", "Luis"]
-    })
+    return pd.DataFrame(
+        {
+            "id": [1, 2],
+            "email": ["a@a.com", "b@b.com"],
+            "age": [25, 30],
+            "name": ["Ana", "Luis"],
+        }
+    )
+
 
 @pytest.fixture
 def valid_rules():
     return [
         {"column": "name", "rule": "not_null"},
-        {"column": "age", "rule": "range", "min": 18, "max": 99}
+        {"column": "age", "rule": "range", "min": 18, "max": 99},
     ]
+
 
 @patch("app.api.validator.load_file")
 @patch("app.api.validator.validate_rule_structure")
@@ -30,10 +37,20 @@ def valid_rules():
 @patch("app.api.validator.generate_report")
 @patch("app.api.validator.find_previous_version")
 @patch("app.api.validator.save_metadata")
-def test_run_pipeline_valid_flow(mock_save_metadata,mock_find_previous_version,
-    mock_generate_report,mock_generate_profile,mock_save_dataframe,mock_version_exists,
-    mock_calculate_hash,mock_enrich_dataframe,mock_DataframeValidator,mock_validate_rule_structure,
-    mock_load_file,test_df,valid_rules
+def test_run_pipeline_valid_flow(
+    mock_save_metadata,
+    mock_find_previous_version,
+    mock_generate_report,
+    mock_generate_profile,
+    mock_save_dataframe,
+    mock_version_exists,
+    mock_calculate_hash,
+    mock_enrich_dataframe,
+    mock_DataframeValidator,
+    mock_validate_rule_structure,
+    mock_load_file,
+    test_df,
+    valid_rules,
 ):
     # Configurar mocks
     mock_load_file.return_value = (test_df, "csv")
@@ -81,18 +98,22 @@ def test_run_pipeline_valid_flow(mock_save_metadata,mock_find_previous_version,
     mock_find_previous_version.assert_called_once_with("mocked_hash")
     mock_save_metadata.assert_called_once_with(validator)
 
+
 @patch("app.api.validator.load_file")
 @patch("app.api.validator.validate_rule_structure")
-def test_run_pipeline_invalid_rules(mock_validate_rule_structure, mock_load_file, test_df):
+def test_run_pipeline_invalid_rules(
+    mock_validate_rule_structure, mock_load_file, test_df
+):
     mock_load_file.return_value = (test_df, "csv")
     mock_validate_rule_structure.return_value = ["Regla inválida"]
 
     validator = DatasetValidator(path="files/sample.csv")
-    validator.load_rules = lambda path="": [{"column": "email", "rule": "regex"}]
+    validator.load_rules = lambda _="": [{"column": "email", "rule": "regex"}]
     result = validator.run_pipeline()
 
     assert result == "Error in rules"
     assert validator.rules_error == ["Regla inválida"]
+
 
 @patch("app.api.validator.os.path.exists")
 def test_run_pipeline_file_not_found(mock_exists):

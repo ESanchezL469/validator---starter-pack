@@ -3,5 +3,5 @@
   { "column": "id", "rule": "unique" },
   { "column": "name", "rule": "not_null" },
   { "column": "email", "rule": "regex", "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
-  { "column": "age", "rule": "range", "min": "18a", "max": 99 }
+  { "column": "age", "rule": "range", "min": 18, "max": 99 }
 ]
