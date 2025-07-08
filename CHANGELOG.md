@@ -1,35 +1,29 @@
-# 📓 Changelog - Validator - Starter Pack
+# 📦 Changelog
 
-Todas las versiones y cambios documentados siguiendo [Keep a Changelog](https://keepachangelog.com/) y [Semantic Versioning](https://semver.org/lang/es/).
+All notable changes to this project will be documented in this file.
 
----
-
-## [0.3.0] - 2025-06-25
-### Añadido
-- Procesamiento de múltiples archivos vía `--input` y `--input-folder`.
-- Soporte para archivos `.csv` y `.xlsx`.
-- Detección de versiones anteriores (`replaces`) para seguimiento.
-- Validación contra duplicados mediante hashing del dataset.
-- Modularización completa (ingestor, tracker, enricher, metadata_writer).
-- Test de integración end-to-end (`test_pipeline_input_folder.py`).
-- Soporte inicial de `argparse`.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [0.2.0] - 2025-06-18
-### Añadido
-- Enriquecimiento de datos (`age_group`, `signup_year`).
-- Generación automática de metadatos (`version`, `timestamp`, `source_file`).
-- Carpeta `metadata/` y escritor de metadatos estructurado (`metadata_writer.py`).
+## [Unreleased]
+
+### Added
+- Endpoint `/validate/` with API key auth
+- Rule engine: `range`, `regex`, `not_null`, `unique`
+- JSON-based rule configuration
+- Version control with hash
+- Profiling report with `ydata-profiling`
+- Full test suite (unit & integration)
+- Code coverage with `pytest-cov`
 
 ---
 
-## [0.1.0] - 2025-06-11
-### Añadido
-- Validación de estructura y tipos con `Pandera`.
-- Registro de errores de validación en archivos `.txt`.
-- Almacenamiento de datasets validados en `datasets/` usando hash.
-- Estructura básica de carpetas y ejecución simple con `main.py`.
-- Dockerfile base y configuración inicial de `Makefile`.
+## [1.0.0] - 2025-07-07
 
----
+### Added
+- Initial public release
+- FastAPI backend
+- Upload and validate CSV
+- Rule file loading from `validation_rules/`
