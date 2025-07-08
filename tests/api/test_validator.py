@@ -1,67 +1,104 @@
+import pytest
 import pandas as pd
-from unittest.mock import patch
-from app.api.validator import DatasetValidator
+from unittest.mock import patch, MagicMock
+from app.api.validator import DatasetValidator  # Ajusta el path real
 
-@patch("app.api.validator.save_metadata")
-@patch("app.api.validator.find_previous_version")
-@patch("app.api.validator.generate_report")
-@patch("app.api.validator.generate_profile")
-@patch("app.api.validator.save_dataframe")
-@patch("app.api.validator.version_exists")
-@patch("app.api.validator.calculate_hash")
+@pytest.fixture
+def test_df():
+    return pd.DataFrame({
+        "id": [1, 2],
+        "email": ["a@a.com", "b@b.com"],
+        "age": [25, 30],
+        "name": ["Ana", "Luis"]
+    })
+
+@pytest.fixture
+def valid_rules():
+    return [
+        {"column": "name", "rule": "not_null"},
+        {"column": "age", "rule": "range", "min": 18, "max": 99}
+    ]
+
+@patch("app.api.validator.load_file")
+@patch("app.api.validator.validate_rule_structure")
+@patch("app.api.validator.DataframeValidator")
 @patch("app.api.validator.enrich_dataframe")
-@patch("app.api.validator.validate_dataframe")
-@patch("app.api.validator.load_file")
-def test_dataset_validator_pipeline(mock_load, mock_validate, mock_enrich, mock_hash, mock_exists,
-                                    mock_save, mock_profile, mock_report, mock_previous, mock_metadata,
-                                    tmp_path):
+@patch("app.api.validator.calculate_hash")
+@patch("app.api.validator.version_exists")
+@patch("app.api.validator.save_dataframe")
+@patch("app.api.validator.generate_profile")
+@patch("app.api.validator.generate_report")
+@patch("app.api.validator.find_previous_version")
+@patch("app.api.validator.save_metadata")
+def test_run_pipeline_valid_flow(mock_save_metadata,mock_find_previous_version,
+    mock_generate_report,mock_generate_profile,mock_save_dataframe,mock_version_exists,
+    mock_calculate_hash,mock_enrich_dataframe,mock_DataframeValidator,mock_validate_rule_structure,
+    mock_load_file,test_df,valid_rules
+):
+    # Configurar mocks
+    mock_load_file.return_value = (test_df, "csv")
+    mock_validate_rule_structure.return_value = []
 
-    csv_path = tmp_path / "data.csv"
-    df = pd.DataFrame({"id": [1], "name": ["Alice"], "email": ["alice@example.com"],
-                       "age": [30], "created_at": ["2023-01-01"], "is_active": [True]})
-    df.to_csv(csv_path, index=False)
+    mock_validator_instance = MagicMock()
+    mock_validator_instance.apply_rules.return_value = []
+    mock_DataframeValidator.return_value = mock_validator_instance
 
-    # Mocks
-    mock_load.return_value = (df, "csv")
-    mock_validate.return_value = (True, {})
-    mock_enrich.return_value = df
-    mock_hash.return_value = "abc123"
-    mock_exists.return_value = False
-    mock_save.return_value = ("abc123", "20240630_150000")
-    mock_previous.return_value = None
+    mock_enrich_dataframe.return_value = test_df
+    mock_calculate_hash.return_value = "mocked_hash"
+    mock_version_exists.return_value = False
+    mock_save_dataframe.return_value = ("mocked_hash", "2025-07-07T00:00:00")
+    mock_find_previous_version.return_value = "prev_hash"
 
-    # Ejecutar
-    validator = DatasetValidator(path=str(csv_path), enableProfile=True)
+    # Ejecutar el pipeline
+    validator = DatasetValidator(path="files/sample.csv", enableProfile=True)
+    validator.load_rules = lambda path="": valid_rules
     result = validator.run_pipeline()
 
-    # Verificación
-    assert result == f"File {csv_path} has validate"
-    assert validator.version == "abc123"
+    # Verifica retorno final
+    assert result == "File files/sample.csv has been validated"
+
+    # Verifica estado interno
     assert validator.is_valid is True
-    assert validator.typeFile == "csv"
-    assert validator.error == {}
+    assert validator.version == "mocked_hash"
+    assert validator.timestamp == "2025-07-07T00:00:00"
+    assert validator.previous == "prev_hash"
+    assert validator.error == []
+    assert isinstance(validator.data, pd.DataFrame)
 
+    # Verifica llamadas clave
+    mock_load_file.assert_called_once_with("files/sample.csv")
+    mock_validate_rule_structure.assert_called_once_with(valid_rules)
+    mock_DataframeValidator.assert_called_once()
+    mock_validator_instance.apply_rules.assert_called_once_with(valid_rules)
+    mock_enrich_dataframe.assert_called_once_with(test_df)
+    mock_calculate_hash.assert_called_once_with(test_df)
+    mock_version_exists.assert_called_once_with("mocked_hash")
+    mock_save_dataframe.assert_called_once_with(test_df)
+    mock_generate_report.assert_called_once_with(
+        "mocked_hash", True, [], "2025-07-07T00:00:00", test_df
+    )
+    mock_generate_profile.assert_called_once_with(test_df, "mocked_hash")
+    mock_find_previous_version.assert_called_once_with("mocked_hash")
+    mock_save_metadata.assert_called_once_with(validator)
 
-@patch("app.api.validator.version_exists", return_value=True)
-@patch("app.api.validator.calculate_hash", return_value="abc123")
-@patch("app.api.validator.validate_dataframe")
 @patch("app.api.validator.load_file")
-def test_dataset_validator_already_validated(mock_load, mock_validate, mock_hash, mock_exists, tmp_path):
-    csv_path = tmp_path / "data.csv"
-    df = pd.DataFrame({"id": [1], "name": ["Alice"], "email": ["alice@example.com"],
-                       "age": [30], "created_at": ["2023-01-01"], "is_active": [True]})
-    df.to_csv(csv_path, index=False)
+@patch("app.api.validator.validate_rule_structure")
+def test_run_pipeline_invalid_rules(mock_validate_rule_structure, mock_load_file, test_df):
+    mock_load_file.return_value = (test_df, "csv")
+    mock_validate_rule_structure.return_value = ["Regla inválida"]
 
-    mock_load.return_value = (df, "csv")
-    mock_validate.return_value = (True, {})
-
-    validator = DatasetValidator(path=str(csv_path))
+    validator = DatasetValidator(path="files/sample.csv")
+    validator.load_rules = lambda path="": [{"column": "email", "rule": "regex"}]
     result = validator.run_pipeline()
 
-    assert result == f"File {csv_path} was already validate"
+    assert result == "Error in rules"
+    assert validator.rules_error == ["Regla inválida"]
 
-def test_dataset_validator_file_not_found(tmp_path):
-    missing_path = tmp_path / "missing.csv"
-    validator = DatasetValidator(path=str(missing_path))
+@patch("app.api.validator.os.path.exists")
+def test_run_pipeline_file_not_found(mock_exists):
+    mock_exists.return_value = False
+
+    validator = DatasetValidator(path="nonexistent.csv")
     result = validator.run_pipeline()
-    assert result == f"File {missing_path} does not exist."
+
+    assert result == "File nonexistent.csv does not exist."

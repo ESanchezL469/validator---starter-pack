@@ -11,7 +11,7 @@ from app.core.logger import logger
 router = APIRouter()
 
 @router.post("/",dependencies=[Depends(verify_api_key)])
-def validate_file(file: UploadFile = File(...)):
+def validate_file(file: UploadFile = File(...)) -> JSONResponse:
     try:
         suffix = os.path.splitext(file.filename)[1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
@@ -26,15 +26,16 @@ def validate_file(file: UploadFile = File(...)):
         logger.info('Validation successful')
 
         return JSONResponse({
-            "status": "success" if len(validator.error) == 0 else "error",
+            "status": "success" if not validator.error and not validator.rules_error else "error",
             "filename": file.filename,
             "message": result_msg,
             "summary": {
-                "total_rows": validator.data.shape[0],
-                "total_columns": validator.data.shape[1],
-                "errors_found": sum(e["invalid_count"] for e in validator.error),
-                "validation_passed": len(validator.error) == 0
+                "total_rows": None if not validator.data.empty else validator.data.shape[0],
+                "total_columns": None if not validator.data.empty else validator.data.shape[1],
+                "errors_found": 0 if not validator.error else sum(e["invalid_count"] for e in validator.error),
+                "validation_passed": not validator.error
             },
+            "rules_error":validator.rules_error,
             "violations":validator.error
         })
 

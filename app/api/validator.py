@@ -4,6 +4,7 @@ import json
 
 from app.core.logger import logger
 from app.validators.schema import DataframeValidator
+from app.validators.rule import validate_rule_structure
 from app.enrichers.enricher import enrich_dataframe
 from app.storage.storage import save_dataframe, calculate_hash
 from app.storage.ingestor import load_file
@@ -23,7 +24,8 @@ class DatasetValidator:
         self.error: list[dict] = None
         self.version: str = None
         self.timestamp: str = None
-        self.previous: str = None
+        self.previous: str = None,
+        self.rules_error: list[dict] = None
 
     def load_rules(self, path: str = "validation_rules/customer.json") -> list[dict]:
         
@@ -38,12 +40,19 @@ class DatasetValidator:
     def run_pipeline(self)->str:
 
         if not os.path.exists(self.path):
+            logger.error(f"File {self.path} does not exist.")
             return f"File {self.path} does not exist."
 
         self.data, self.typeFile = load_file(self.path)
+        
         validator: DataframeValidator = DataframeValidator(self.data)
-
         rules = self.load_rules()
+
+        self.rules_error = validate_rule_structure(rules)
+
+        if len(self.rules_error) > 0:
+            logger.error('Error in rules')
+            return f'Error in rules'
 
         self.error = validator.apply_rules(rules)
         self.is_valid = True if len(self.error) == 0 else False
@@ -51,6 +60,7 @@ class DatasetValidator:
         self.version = calculate_hash(self.data)
 
         if version_exists(self.version):
+            logger.info(f'File {self.path} was already validate')
             return f'File {self.path} was already validate'
         
         self.version, self.timestamp = save_dataframe(self.data) #A corregir por referenca ciclica
@@ -59,5 +69,5 @@ class DatasetValidator:
         self.previous = find_previous_version(self.version)
         save_metadata(self)
 
+        logger.info(f'File {self.path} has been validated')
         return f'File {self.path} has been validated'
-
