@@ -1,136 +1,171 @@
-# Validator - Starter Pack
+# 🧪 Validator - Starter Pack
 
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Tests](https://img.shields.io/badge/tests-pytest%20%2B%20httpx-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-pytest--cov-yellow)
 
-A robust Data Quality as a Service (DQaaS) platform that enables you to:
-
-- Upload a CSV, Excel, JSON or Parquet dataset
-- Automatically validate schema with [Pandera](https://pandera.readthedocs.io/)
-- Enrich the dataset with business rules (e.g. age groups)
-- Generate profiling reports with [YData Profiling](https://github.com/ydataai/ydata-profiling)
-- Version and store validated data
-- Expose everything via a FastAPI endpoint
+A robust and extensible **Data Quality as a Service (DQaaS)** platform built with FastAPI and Pandas. This project enables you to upload datasets, validate them against configurable rules, track dataset versions, and generate data profiling reports.
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Features
 
-### 1. Clone and install dependencies
+- 📤 Upload and validate CSV datasets via API  
+- 🔐 API key authentication  
+- 📐 Rule-based validation (e.g., `range`, `not_null`, `regex`, `unique`)  
+- 📊 Data profiling using `ydata-profiling`  
+- 🧠 Intelligent versioning using content-based hashing  
+- 📝 Automatic report and metadata generation  
+- ✅ Full test suite (unit & integration)  
+- 🧪 Code coverage with `pytest-cov`  
+
+---
+
+## 📁 Project Structure
+
+```
+validator/
+├── app/
+│   ├── api/               # FastAPI routes and security
+│   ├── config.py          # Global paths and config
+│   ├── validators/        # Rule engine & schema validators
+│   ├── enrichers/         # Optional data enrichment
+│   ├── profilers/         # Generates profiling reports
+│   ├── reporters/         # Builds validation reports
+│   ├── storage/           # File storage and hashing
+│   ├── metadata/          # Version tracking and metadata
+├── tests/                 # Unit & integration tests
+├── validation_rules/      # JSON rule definitions
+├── scripts/               # Helper scripts (e.g., init_dirs.py)
+├── requirements.txt       # Dependencies
+├── Makefile               # CLI commands for dev & testing
+└── run.py                 # Entry point to launch the API
+```
+
+---
+
+## ⚙️ Setup
+
 ```bash
-git clone https://github.com/your-org/validator-starter-pack.git
-cd validator-starter-pack
+# 1. Install dependencies
 make install
-```
 
-### 2. Set up environment variables
-Create a `.env` file in the root directory:
-```env
-DATASETS_DIR=datasets
-METADATA_DIR=metadatas
-REPORTS_DIR=reports
-PROFILES_DIR=profiles
-API_PORT=8080
-```
+# 2. Create necessary directories
+python scripts/init_dirs.py
 
-### 3. Run the API
-```bash
+# 3. Run the API
 make run
 ```
 
-Visit http://localhost:8080/docs for the interactive API docs.
+The API will be available at:  
+📍 `http://0.0.0.0:8080/validate/`
 
 ---
 
-## 🧪 Run Tests
+## 🔐 API Authentication
+
+All requests must include an API key header:
+
+```
+x-api-key: your_api_key_here
+```
+
+---
+
+## 📤 API Usage: `POST /validate/`
+
+### Headers
+
+- `x-api-key: your_api_key_here`
+- `Content-Type: multipart/form-data`
+
+### Body (form-data)
+
+| Field | Type | Description        |
+|-------|------|--------------------|
+| file  | File | CSV file to upload |
+
+### Example using `curl`
+
 ```bash
-make test
+curl -X POST http://0.0.0.0:8080/validate/ \
+  -H "x-api-key: your_api_key_here" \
+  -F "file=@path/to/your.csv"
 ```
 
 ---
 
-## 🧱 Project Structure
-```
-validator-starter-pack/
-├── app/
-│   ├── api/             # FastAPI router + main app
-│   ├── core/            # DatasetValidator orchestrator
-│   ├── validators/      # Pandera schema definitions
-│   ├── enrichers/       # Data enrichment logic
-│   ├── reporters/       # Plain text report generator
-│   ├── profilers/       # ydata_profiling integration
-│   ├── metadata/        # Metadata generation & tracking
-│   ├── storage/         # File I/O, hashing, versioning
-│   ├── config.py        # .env config loader
-│   └── setup.py         # Directory initializer
-├── datasets/            # Stored validated datasets (CSV/Parquet)
-├── profiles/            # Generated HTML profiling reports
-├── reports/             # Plaintext validation reports
-├── metadatas/           # JSON metadata files
-├── files/               # Example or temporary uploaded files
-├── tests/               # Unit tests
-├── .env                 # Environment variables
-├── run.py               # Startup script
-├── Makefile             # Development commands
-├── requirements.txt     # Dependencies
-└── README.md            # This file
-```
+## ✅ Validation Rules
 
----
+Validation rules must be defined in JSON format and placed in the `validation_rules/` directory.
 
-## 📎 Sample CSV File
-Save the following content in `files/sample.csv`:
-```csv
-id,name,email,age,created_at,is_active
-1,Alice,alice@example.com,30,2023-01-01,True
-2,Bob,bob@example.com,45,2022-06-15,False
-3,Carol,carol@example.com,22,2024-03-10,True
-```
+Example `validation_rules/customer.json`:
 
-Upload via Postman:
-- Method: `POST`
-- URL: `http://localhost:8080/validate/`
-- Body: `form-data`
-  - Key: `file`
-  - Type: `File`
-  - Value: select your `sample.csv`
-
----
-
-## 📡 API Endpoint
-
-### `POST /validate/`
-Upload a dataset and run validation pipeline.
-
-#### Form-Data
-- `file`: your dataset file (CSV, Excel, JSON, Parquet)
-
-#### Example Response
 ```json
-{
-  "status": "success",
-  "message": "File sample.csv has validate",
-  "is_valid": true,
-  "hash": "abc123...",
-  "total_rows": 3,
-  "errors": {},
-  "report_url": "/report/abc123",
-  "metadata_url": "/metadata/abc123",
-  "profile_url": "/profile/abc123"
-}
+[
+  { "column": "id", "rule": "not_null" },
+  { "column": "age", "rule": "range", "min": 18, "max": 99 },
+  { "column": "email", "rule": "regex", "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
+  { "column": "name", "rule": "unique" }
+]
 ```
 
 ---
 
-## 🧰 Makefile Commands
+## 🧪 Testing
 
-| Command       | Description                           |
-|---------------|---------------------------------------|
-| `make run`    | Launch the API server                 |
-| `make test`   | Run unit tests with Pytest            |
-| `make clean`  | Clean up `.pyc`, `__pycache__`, etc.  |
+### Run unit tests
+```bash
+make test-unit
+```
+
+### Run API tests
+```bash
+make test-api
+```
+
+### Run all tests
+```bash
+make test-all
+```
 
 ---
 
-## 📜 License
-MIT License
+## 📊 Code Coverage
+
+To check code coverage in the terminal:
+```bash
+make coverage
+```
+
+---
+
+## 🐍 Requirements
+
+- Python 3.11+
+- pip (or virtualenv/conda)
+- See `requirements.txt` for all dependencies
+
+---
+
+## 📌 TODO / Roadmap
+
+- [ ] Add CLI usage: `python -m validator file.csv`
+- [ ] Add rule chaining / conditional logic
+- [ ] Add history endpoint: `/history?filename=...`
+- [ ] Dockerize the project
+- [ ] Add basic UI (Streamlit or Gradio)
+- [ ] Deploy to cloud (Render, Railway, etc.)
+
+---
+
+## 📃 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👨‍💻 Author
+
+Built by Santiago Sanchez — open to feedback, improvements, or collaboration!

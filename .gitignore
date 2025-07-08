@@ -13,6 +13,7 @@ files/
 logs/
 .pytest_cache/
 .venv/
+.coverage
 
 .env
 *.pyc

@@ -23,15 +23,5 @@ test-api:
 test-all:
 	PYTHONPATH=. pytest tests
 
-docker-build:
-	docker build -t dataops-validator .
-
-docker-run:
-	docker run -it \
-		-v $(PWD)/datasets:/app/datasets \
-		-v $(PWD)/reports:/app/reports \
-		-v $(PWD)/metadata:/app/metadata \
-		dataops-validator
-
 coverage:
 	PYTHONPATH=. pytest --cov=app tests --cov-report=term-missing
