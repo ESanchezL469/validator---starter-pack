@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.setup import create_required_directories
+from app.init_dirs import create_required_directories
 from app.api.routes.validate import router as validate_router
 
 app = FastAPI(

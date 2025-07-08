@@ -14,8 +14,14 @@ clean:
 run:
 	PYTHONWARNINGS=ignore python run.py
 
-test:
-	PYTHONPATH=. pytest tests/
+test-unit:
+	PYTHONPATH=. pytest tests/unit -v
+
+test-api:
+	PYTHONPATH=. pytest tests/integration -v
+
+test-all:
+	PYTHONPATH=. pytest tests
 
 docker-build:
 	docker build -t dataops-validator .
@@ -26,3 +32,6 @@ docker-run:
 		-v $(PWD)/reports:/app/reports \
 		-v $(PWD)/metadata:/app/metadata \
 		dataops-validator
+
+coverage:
+	PYTHONPATH=. pytest --cov=app tests --cov-report=term-missing
