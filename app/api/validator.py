@@ -24,7 +24,8 @@ class DatasetValidator:
         self.error: list[dict] = None
         self.version: str = None
         self.timestamp: str = None
-        self.previous: str = None,
+        self.previous: str = None
+        self.rules: list[dict] = None
         self.rules_error: list[dict] = None
 
     def load_rules(self, path: str = "validation_rules/customer.json") -> list[dict]:
@@ -39,35 +40,62 @@ class DatasetValidator:
 
     def run_pipeline(self)->str:
 
-        if not os.path.exists(self.path):
+        if not self._file_exists():
             logger.error(f"File {self.path} does not exist.")
             return f"File {self.path} does not exist."
 
-        self.data, self.typeFile = load_file(self.path)
-        
-        validator: DataframeValidator = DataframeValidator(self.data)
-        rules = self.load_rules()
+        self._load_data()
+        self._load_and_validate_rules()
 
-        self.rules_error = validate_rule_structure(rules)
-
-        if len(self.rules_error) > 0:
+        if self.rules_error:
             logger.error('Error in rules')
             return f'Error in rules'
 
-        self.error = validator.apply_rules(rules)
-        self.is_valid = True if len(self.error) == 0 else False
-        self.data = enrich_dataframe(self.data)
-        self.version = calculate_hash(self.data)
+        self._validate_data()
+        self._enrich_data()
+        self._calculate_version()
 
         if version_exists(self.version):
             logger.info(f'File {self.path} was already validate')
             return f'File {self.path} was already validate'
         
-        self.version, self.timestamp = save_dataframe(self.data) #A corregir por referenca ciclica
-        generate_profile(self.data,self.version) if self.enableProfile else 1
-        generate_report(self.version, self.is_valid, self.error, self.timestamp, self.data)
-        self.previous = find_previous_version(self.version)
-        save_metadata(self)
+        self._store_dataset()
+        self._generate_outputs()
+        self._save_metadata()
 
         logger.info(f'File {self.path} has been validated')
         return f'File {self.path} has been validated'
+    
+    def _file_exists(self) -> bool:
+        return os.path.exists(self.path)
+
+    def _load_data(self) -> None:
+        self.data, self.typeFile = load_file(self.path)
+
+    def _load_and_validate_rules(self) -> None:
+        rules = self.load_rules()
+        self.rules_error = validate_rule_structure(rules)
+        self.rules = rules
+
+    def _validate_data(self) -> None:
+        validator = DataframeValidator(self.data)
+        self.error = validator.apply_rules(self.rules)
+        self.is_valid = len(self.error) == 0
+
+    def _enrich_data(self) -> None:
+        self.data = enrich_dataframe(self.data)
+
+    def _calculate_version(self) -> None:
+        self.version = calculate_hash(self.data)
+
+    def _store_dataset(self) -> None:
+        self.version, self.timestamp = save_dataframe(self.data)
+
+    def _generate_outputs(self) -> None:
+        if self.enableProfile:
+            generate_profile(self.data, self.version)
+        generate_report(self.version, self.is_valid, self.error, self.timestamp, self.data)
+
+    def _save_metadata(self):
+        self.previous = find_previous_version(self.version)
+        save_metadata(self)
