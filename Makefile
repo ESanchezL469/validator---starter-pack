@@ -1,24 +1,41 @@
-VENV_DIR := venv
-PYTHON := $(VENV_DIR)/bin/python
-PIP := $(VENV_DIR)/bin/pip
-PYTEST := $(VENV_DIR)/bin/pytest
-PRE_COMMIT := $(VENV_DIR)/bin/pre-commit
+VENVB_DIR := venv-backend
+VENVF_DIR := venv-frontend
 
-venv:
-	python3 -m venv $(VENV_DIR)
-	$(PIP) install --upgrade pip
+PYTHONB := $(VENVB_DIR)/bin/python
+PYTHONF := $(VENVF_DIR)/bin/python
 
-install: venv
-	${PIP} install -r requirements.txt --upgrade --force-reinstall
+PYTEST := $(VENVB_DIR)/bin/pytest
+PRE_COMMIT := $(VENVB_DIR)/bin/pre-commit
+
+venv-backend:
+	python3 -m venv $(VENVB_DIR)
+	$(PYTHONB) -m pip install --upgrade pip
+
+venv-frontend:
+	python3 -m venv $(VENVF_DIR)
+	$(PYTHONF) -m pip install --upgrade pip
+
+venv: venv-backend venv-frontend
+
+install-backend:
+	$(VENVB_DIR)/bin/pip install --upgrade --force-reinstall -r app/requirements.txt
+
+install-frontend:
+	$(VENVF_DIR)/bin/pip install --upgrade --force-reinstall -r frontend/requirements.txt
+
+install: install-backend install-frontend
 
 clean:
-	find . -type d -name '__pycache__' -exec rm -r {} + && \
-	find . -type f -name '*.pyc' -delete && \
-	find . -type d -name '.pytest_cache' -exec rm -r {} + && \
-	find . -type d -name '.mypy_cache' -exec rm -r {} +
+	find . \( -type d -name '__pycache__' -o \
+	           -type f -name '*.pyc' -o \
+	           -type d -name '.pytest_cache' -o \
+	           -type d -name '.mypy_cache' \) -exec rm -rf {} +
 
-run:
-	PYTHONWARNINGS=ignore ${PYTHON} run.py
+run-backend:
+	PYTHONWARNINGS=ignore $(PYTHONB) -m app.run
+
+run-ui:
+	cd frontend && ../$(VENVF_DIR)/bin/streamlit run streamlit_app.py
 
 test-unit:
 	PYTHONPATH=. ${PYTEST} tests/unit -v
@@ -30,15 +47,26 @@ test-all:
 	PYTHONPATH=. ${PYTEST} tests
 
 coverage:
-	PYTHONPATH=. ${PYTHON} --cov=app tests --cov-report=term-missing
+	PYTHONPATH=. ${PYTHONB} -m pytest --cov=app tests --cov-report=term-missing
 
-activate:
+activate-backend:
 	@echo "Run this command to activate your environment:"
-	@echo "source $(VENV_DIR)/bin/activate"
+	@echo "source $(VENVB_DIR)/bin/activate"
+
+activate-frontend:
+	@echo "Run this command to activate your environment:"
+	@echo "source $(VENVF_DIR)/bin/activate"
 
 setup-pre-commit:
-	pre-commit install
-	pre-commit autoupdate
+	$(PRE_COMMIT) install
+	$(PRE_COMMIT) autoupdate
 
-run-checks:
-	${PRE_COMMIT} run --all-files
+run-checks-backend: activate-backend
+	$(PRE_COMMIT) run --all-files
+
+run-checks-frontend:
+	$(VENVF_DIR)/bin/black frontend
+	$(VENVF_DIR)/bin/isort frontend
+	$(VENVF_DIR)/bin/flake8 frontend
+
+run-checks: run-checks-backend run-checks-frontend

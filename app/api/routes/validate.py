@@ -12,9 +12,9 @@ from app.core.logger import logger
 router: APIRouter = APIRouter()
 
 
-@router.post("/validate", dependencies=[Depends(verify_api_key)])
+@router.post("/validate/", dependencies=[Depends(verify_api_key)])
 def validate_file(
-    file: UploadFile = File(...), rules_file: str = Query("customer_rules.json")
+    file: UploadFile = File(...), rules_file: str = Query("customer.json")
 ) -> JSONResponse:
     try:
         suffix = os.path.splitext(file.filename)[1]
@@ -25,7 +25,7 @@ def validate_file(
         logger.info(f"File loaded: {file.filename}")
         logger.info(f"Using rules file: {rules_file}")
 
-        rules_path: str = os.path.join("validation_rules", rules_file)
+        rules_path: str = os.path.join("app/validation_rules", rules_file)
 
         validator: DatasetValidator = DatasetValidator(
             path=temp_path, enableProfile=True, rules_file=rules_path
@@ -41,6 +41,7 @@ def validate_file(
                     if not validator.error and not validator.rules_error
                     else "error"
                 ),
+                "hash": validator.version,
                 "filename": file.filename,
                 "message": result_msg,
                 "summary": {

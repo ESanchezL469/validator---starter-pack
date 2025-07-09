@@ -38,7 +38,7 @@ class DatasetValidator:
         self,
         path: str = "",
         enableProfile: bool = False,
-        rules_file: str = "validation_rules/customer.json",
+        rules_file: str = "app/validation_rules/customer.json",
     ) -> None:
         """
         Initialize the DatasetValidator.
@@ -60,7 +60,7 @@ class DatasetValidator:
         self.rules_error: list[str] = []
         self.rules_file: str = rules_file
 
-    def load_rules(self, path: str = "validation_rules/customer.json") -> Any:
+    def load_rules(self, path: str = "app/validation_rules/customer.json") -> Any:
         """
         Load validation rules from a JSON file.
 

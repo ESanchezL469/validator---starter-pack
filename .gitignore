@@ -1,20 +1,41 @@
-app/*/__pycache__/
-app/api/*/__pycache__/
-app/__pycache__/
-tests/*/__pycache__/
-tests/__pycache__/
+# === Virtual environments ===
+venv-backend/
+venv-frontend/
 
+# === Python cache ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+
+# === Bytecode and coverage ===
+.coverage
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+.eggs/
+
+# === Logs, temp & env ===
+logs/
+*.log
+.env
+.env.*
+*.db
+
+# === Reports and artifacts ===
 reports/
 datasets/
-profiles/
 metadatas/
+profiles/
 files/
-logs/
-.pytest_cache/
-.venv/
-venv/
-.mypy_cache/
-.coverage
 
-.env
-*.pyc
+# === Frontend cache (if using Streamlit or others) ===
+frontend/.streamlit/
+frontend/.cache/
+
+# === Editor & system files ===
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
