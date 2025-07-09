@@ -3,8 +3,7 @@ import io
 import pandas as pd
 from fastapi.testclient import TestClient
 
-from app.api.main import \
-    app  # Asegúrate de importar tu FastAPI app correctamente
+from app.api.main import app
 
 client = TestClient(app)
 
@@ -29,7 +28,7 @@ def generate_invalid_csv():
 
 # 🧪 Test de validación exitosa
 def test_validate_valid_csv(monkeypatch):
-
+    """codigo de prueba valido"""
     monkeypatch.setattr(
         "app.api.routes.validate.DatasetValidator.run_pipeline",
         lambda self: (
@@ -68,7 +67,7 @@ def test_validate_valid_csv(monkeypatch):
 
 # 🧪 Test de validación con errores
 def test_validate_invalid_csv(monkeypatch):
-
+    """codigo de prueba invalido"""
     monkeypatch.setattr(
         "app.api.routes.validate.DatasetValidator.run_pipeline",
         lambda self: (
@@ -116,6 +115,7 @@ def test_validate_invalid_csv(monkeypatch):
 
 # 🧪 Test sin archivo
 def test_validate_missing_file():
+    """falta arhivos"""
     headers = {"x-api-key": VALID_API_KEY}
     response = client.post("http://0.0.0.0:8080/validate/", headers=headers)
     assert response.status_code == 422
@@ -123,6 +123,7 @@ def test_validate_missing_file():
 
 # 🧪 Test sin API key
 def test_validate_without_api_key():
+    """no tiene llave"""
     files = {"file": ("sample.csv", generate_valid_csv(), "text/csv")}
     response = client.post("http://0.0.0.0:8080/validate/", files=files)
     assert response.status_code == 422

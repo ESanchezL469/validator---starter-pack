@@ -6,7 +6,6 @@ from app.metadata.tracker import find_previous_version, version_exists
 
 
 def test_version_exists(tmp_path, monkeypatch):
-
     monkeypatch.setattr("app.metadata.tracker.METADATA_DIR", str(tmp_path))
 
     version = "abc123"
@@ -17,7 +16,6 @@ def test_version_exists(tmp_path, monkeypatch):
 
 
 def test_find_previous_version_found(tmp_path, monkeypatch):
-
     monkeypatch.setattr("app.metadata.tracker.METADATA_DIR", str(tmp_path))
 
     version = "abc123"
@@ -34,14 +32,12 @@ def test_find_previous_version_found(tmp_path, monkeypatch):
 
 
 def test_version_exists_false(tmp_path, monkeypatch):
-
     monkeypatch.setattr("app.metadata.tracker.METADATA_DIR", str(tmp_path))
 
     assert version_exists("nonexistent") is False
 
 
 def test_find_previous_version_none(tmp_path, monkeypatch):
-
     monkeypatch.setattr("app.metadata.tracker.METADATA_DIR", str(tmp_path))
 
     assert find_previous_version("nonexistent") == ""

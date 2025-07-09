@@ -124,7 +124,6 @@ class DataframeValidator:
             List[Dict]: List of violations found.
         """
         for rule in rules:
-
             type = rule["rule"]
             col = rule["column"]
 

@@ -12,7 +12,7 @@ install: venv
 clean:
 	find . -type d -name '__pycache__' -exec rm -r {} + && \
 	find . -type f -name '*.pyc' -delete && \
-	rm -rf .pytest_cache 
+	rm -rf .pytest_cache
 
 run:
 	PYTHONWARNINGS=ignore ${PYTHON} run.py
@@ -32,14 +32,3 @@ coverage:
 activate:
 	@echo "Run this command to activate your environment:"
 	@echo "source $(VENV_DIR)/bin/activate"
-
-preinstall:
-	pre-commit install
-
-preclean:
-	pre-commit clean
-
-lint:
-	pre-commit run --all-files
-
-check: lint

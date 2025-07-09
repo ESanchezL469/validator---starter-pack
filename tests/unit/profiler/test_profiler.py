@@ -5,7 +5,6 @@ from app.profilers.profiler import generate_profile
 
 
 def test_profiler_success(tmp_path, monkeypatch):
-
     monkeypatch.setattr("app.profilers.profiler.PROFILES_DIR", str(tmp_path))
 
     test_data = {"id": [1, 2], "name": ["Alice", "Bob"], "age": [25, 30]}
@@ -18,7 +17,6 @@ def test_profiler_success(tmp_path, monkeypatch):
 
 
 def test_profiler_fail(tmp_path, monkeypatch):
-
     monkeypatch.setattr("app.profilers.profiler.PROFILES_DIR", str(tmp_path))
 
     class Broken:

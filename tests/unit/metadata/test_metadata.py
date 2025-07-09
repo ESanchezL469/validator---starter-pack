@@ -11,7 +11,6 @@ from app.metadata.metadata import save_metadata
 
 
 def test_save_metadata_success(tmp_path, monkeypatch):
-
     monkeypatch.setattr("app.metadata.metadata.METADATA_DIR", str(tmp_path))
 
     mock_validator = MagicMock()

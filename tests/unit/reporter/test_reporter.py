@@ -8,7 +8,6 @@ from app.reporters.reporter import generate_report
 
 
 def test_generate_report_success(tmp_path, monkeypatch):
-
     monkeypatch.setattr("app.reporters.reporter.REPORTS_DIR", str(tmp_path))
 
     df = pd.DataFrame({"value": [10, 20, 30]})
@@ -34,7 +33,6 @@ def test_generate_report_success(tmp_path, monkeypatch):
 
 
 def test_generate_report_fail(tmp_path, monkeypatch):
-
     monkeypatch.setattr("app.reporters.reporter.REPORTS_DIR", str(tmp_path))
 
     df = pd.DataFrame({"age": [25, -1, 130]})

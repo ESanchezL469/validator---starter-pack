@@ -11,14 +11,14 @@ A robust and extensible **Data Quality as a Service (DQaaS)** platform built wit
 
 ## 🚀 Features
 
-- 📤 Upload and validate CSV datasets via API  
-- 🔐 API key authentication  
-- 📐 Rule-based validation (e.g., `range`, `not_null`, `regex`, `unique`)  
-- 📊 Data profiling using `ydata-profiling`  
-- 🧠 Intelligent versioning using content-based hashing  
-- 📝 Automatic report and metadata generation  
-- ✅ Full test suite (unit & integration)  
-- 🧪 Code coverage with `pytest-cov`  
+- 📤 Upload and validate CSV datasets via API
+- 🔐 API key authentication
+- 📐 Rule-based validation (e.g., `range`, `not_null`, `regex`, `unique`)
+- 📊 Data profiling using `ydata-profiling`
+- 🧠 Intelligent versioning using content-based hashing
+- 📝 Automatic report and metadata generation
+- ✅ Full test suite (unit & integration)
+- 🧪 Code coverage with `pytest-cov`
 
 ---
 
@@ -58,7 +58,7 @@ python scripts/init_dirs.py
 make run
 ```
 
-The API will be available at:  
+The API will be available at:
 📍 `http://0.0.0.0:8080/validate/`
 
 ---
