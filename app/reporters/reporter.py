@@ -14,30 +14,33 @@ def generate_report(
     df: DataFrame = None,
 ) -> None:
     report_path: str = os.path.join(REPORTS_DIR, f"{version}_report.txt")
-    total_rows: int = len(df)
+    total_rows: int = len(df) if df is not None else 0
 
     with open(report_path, "w", encoding="utf-8") as report_file:
         report_file.write(f"Version: {version}\n")
         report_file.write(f"Generated: {datetime.now().isoformat()}\n")
-        report_file.write(f"Version: {version}\n")
         report_file.write(f"Timestamp: {timestamp}\n")
         report_file.write(f"Total Rows: {total_rows}\n")
 
-        if not is_valid:
-            total_issues = sum(len(err) for err in errors)
-            report_file.write(f"Total Issues: {total_issues}")
+        if not is_valid and errors:
+            total_issues = sum(error.get("invalid_count", 0) for error in errors)
+            report_file.write(f"Total Issues: {total_issues}\n")
 
             for err in errors:
-                for column, issues in err.items():
-                    report_file.write(f"\nColumn: {column}")
-                    for issue in issues:
-                        report_file.write(
-                            f" - {issue['failure_case']} - {issue['check']}"
-                        )
+                column = err.get("column", "Unknown column")
+                rule = err.get("rule", "Unknown rule")
+                description = err.get("description", "")
+                count = err.get("invalid_count", 0)
+                samples = err.get("sample_invalid_values", [])
 
+                report_file.write(f"\nColumn: {column}")
+                report_file.write(f"\n - Rule Violated: {rule}")
+                report_file.write(f"\n - Description: {description}")
+                report_file.write(f"\n - Invalid Count: {count}")
+                report_file.write(f"\n - Sample Invalid Values: {samples}\n")
         else:
-            report_file.write("DataFrame is valid.")
-            report_file.write("Consider running statistical analysis.")
-            if not df.empty:
+            report_file.write("\nDataFrame is valid.\n")
+            report_file.write("Consider running statistical analysis.\n")
+            if df is not None and not df.empty:
                 report_file.write("Basic statistics:\n")
                 report_file.write(f"{df.describe().to_string()}\n")

@@ -1,0 +1,26 @@
+[
+    {
+        "column": "customerID",
+        "rule": "not_null"
+    },
+    {
+        "column": "MonthlyCharges",
+        "rule": "range",
+        "min": 0,
+        "max": 500
+    },
+    {
+        "column": "PaymentMethod",
+        "rule": "not_null"
+    },
+    {
+        "column": "Contract",
+        "rule": "regex",
+        "pattern": "^(Month-to-month|One year|Two year)$"
+    },
+    {
+        "column": "Churn",
+        "rule": "regex",
+        "pattern": "^(Yes|No)$"
+    }
+]

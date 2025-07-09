@@ -34,7 +34,12 @@ class DatasetValidator:
         rules_error (list[str]): Errors found.
     """
 
-    def __init__(self, path: str = "", enableProfile: bool = False) -> None:
+    def __init__(
+        self,
+        path: str = "",
+        enableProfile: bool = False,
+        rules_file: str = "validation_rules/customer.json",
+    ) -> None:
         """
         Initialize the DatasetValidator.
 
@@ -53,6 +58,7 @@ class DatasetValidator:
         self.previous: str = ""
         self.rules: list[dict] = []
         self.rules_error: list[str] = []
+        self.rules_file: str = rules_file
 
     def load_rules(self, path: str = "validation_rules/customer.json") -> Any:
         """
@@ -119,7 +125,7 @@ class DatasetValidator:
 
     def _load_and_validate_rules(self) -> None:
         """Load rules and check for rule structure errors."""
-        rules = self.load_rules()
+        rules = self.load_rules(self.rules_file)
         self.rules_error = validate_rule_structure(rules)
         self.rules = rules
 

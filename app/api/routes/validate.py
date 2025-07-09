@@ -2,7 +2,7 @@ import os
 import shutil
 import tempfile
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import JSONResponse
 
 from app.api.security import verify_api_key
@@ -13,7 +13,9 @@ router: APIRouter = APIRouter()
 
 
 @router.post("/validate", dependencies=[Depends(verify_api_key)])
-def validate_file(file: UploadFile = File(...)) -> JSONResponse:
+def validate_file(
+    file: UploadFile = File(...), rules_file: str = Query("customer_rules.json")
+) -> JSONResponse:
     try:
         suffix = os.path.splitext(file.filename)[1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
@@ -21,9 +23,12 @@ def validate_file(file: UploadFile = File(...)) -> JSONResponse:
             temp_path: str = tmp.name
 
         logger.info(f"File loaded: {file.filename}")
+        logger.info(f"Using rules file: {rules_file}")
+
+        rules_path: str = os.path.join("validation_rules", rules_file)
 
         validator: DatasetValidator = DatasetValidator(
-            path=temp_path, enableProfile=True
+            path=temp_path, enableProfile=True, rules_file=rules_path
         )
         result_msg: str = validator.run_pipeline()
 
