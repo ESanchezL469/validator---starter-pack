@@ -25,7 +25,9 @@ jobs:
           make install
 
       - name: Run pre-commit checks
-        run: make run-checks
+        run: |
+          pip install pre-commit
+          make run-checks
 
       - name: Run all tests
         run: make test-all
