@@ -1,12 +1,15 @@
 import io
-import json
+
 import pandas as pd
 from fastapi.testclient import TestClient
-from app.api.main import app  # Asegúrate de importar tu FastAPI app correctamente
+
+from app.api.main import \
+    app  # Asegúrate de importar tu FastAPI app correctamente
 
 client = TestClient(app)
 
-VALID_API_KEY = "supersecreta" #De prueba
+VALID_API_KEY = "supersecreta"  # De prueba
+
 
 # 📄 CSV válido simulado como archivo
 def generate_valid_csv():
@@ -23,26 +26,38 @@ def generate_invalid_csv():
     content = "id,email,age,name\n1,a@a.com,10,Ana\n2,b@b.com,200,Luis"
     return io.BytesIO(content.encode("utf-8"))
 
+
 # 🧪 Test de validación exitosa
 def test_validate_valid_csv(monkeypatch):
-    def mock_run_pipeline(self):
-        self.data = pd.DataFrame({
-            "id": [1, 2],
-            "name": ["Ana", "Luis"],
-            "email": ["a@a.com", "b@b.com"],
-            "age": [25, 30],
-            "created_at": ["2024-01-01", "2024-02-01"],
-            "is_active": [True, True]
-        })
-        self.error = []
-        self.rules_error = []
-        return "File sample.csv has been validated"
 
-    monkeypatch.setattr("app.api.routes.validate.DatasetValidator.run_pipeline", mock_run_pipeline)
+    monkeypatch.setattr(
+        "app.api.routes.validate.DatasetValidator.run_pipeline",
+        lambda self: (
+            setattr(
+                self,
+                "data",
+                pd.DataFrame(
+                    {
+                        "id": [1, 2],
+                        "name": ["Ana", "Luis"],
+                        "email": ["a@a.com", "b@b.com"],
+                        "age": [25, 30],
+                        "created_at": ["2024-01-01", "2024-02-01"],
+                        "is_active": [True, True],
+                    }
+                ),
+            ),
+            setattr(self, "error", []),
+            setattr(self, "rules_error", []),
+            "File sample.csv has been validated",
+        ),
+    )
 
     files = {"file": ("sample.csv", generate_valid_csv(), "text/csv")}
     headers = {"x-api-key": VALID_API_KEY}
-    response = client.post("http://0.0.0.0:8080/validate/", files=files, headers=headers)
+    response = client.post(
+        "http://0.0.0.0:8080/validate/", files=files, headers=headers
+    )
 
     assert response.status_code == 200
     payload = response.json()
@@ -50,24 +65,43 @@ def test_validate_valid_csv(monkeypatch):
     assert payload["filename"] == "sample.csv"
     assert payload["summary"]["validation_passed"] is True
 
+
 # 🧪 Test de validación con errores
 def test_validate_invalid_csv(monkeypatch):
-    def mock_run_pipeline(self):
-        
-        self.data = pd.DataFrame({
-            "id": [1, 2],
-            "name": ["Ana", "Luis"],
-            "email": ["a@a.com", "b@b.com"],
-            "age": [10, 200],  # Fuera de rango
-            "created_at": ["2024-01-01", "2024-02-01"],
-            "is_active": [True, False]
-        })
 
-        self.error = [{"column": "age", "rule": "range", "invalid_count": 2,"sample_invalid_values": [10, 200]}]
-        self.rules_error = []
-        return "File sample.csv has been validated with errors"
-
-    monkeypatch.setattr("app.api.routes.validate.DatasetValidator.run_pipeline", mock_run_pipeline)
+    monkeypatch.setattr(
+        "app.api.routes.validate.DatasetValidator.run_pipeline",
+        lambda self: (
+            setattr(
+                self,
+                "data",
+                pd.DataFrame(
+                    {
+                        "id": [1, 2],
+                        "name": ["Ana", "Luis"],
+                        "email": ["a@a.com", "b@b.com"],
+                        "age": [10, 200],
+                        "created_at": ["2024-01-01", "2024-02-01"],
+                        "is_active": [True, False],
+                    }
+                ),
+            ),
+            setattr(
+                self,
+                "error",
+                [
+                    {
+                        "column": "age",
+                        "rule": "range",
+                        "invalid_count": 2,
+                        "sample_invalid_values": [10, 200],
+                    }
+                ],
+            ),
+            setattr(self, "rules_error", []),
+            "File sample.csv has been validated with errors",
+        )[-1],
+    )
 
     files = {"file": ("sample.csv", generate_invalid_csv(), "text/csv")}
     headers = {"x-api-key": VALID_API_KEY}
@@ -79,11 +113,13 @@ def test_validate_invalid_csv(monkeypatch):
     assert payload["summary"]["errors_found"] == 2
     assert payload["summary"]["validation_passed"] is False
 
+
 # 🧪 Test sin archivo
 def test_validate_missing_file():
     headers = {"x-api-key": VALID_API_KEY}
     response = client.post("http://0.0.0.0:8080/validate/", headers=headers)
     assert response.status_code == 422
+
 
 # 🧪 Test sin API key
 def test_validate_without_api_key():
