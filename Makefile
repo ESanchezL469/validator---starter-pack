@@ -1,6 +1,8 @@
 VENV_DIR := venv
 PYTHON := $(VENV_DIR)/bin/python
 PIP := $(VENV_DIR)/bin/pip
+PYTEST := $(VENV_DIR)/bin/pytest
+PRE_COMMIT := $(VENV_DIR)/bin/pre-commit
 
 venv:
 	python3 -m venv $(VENV_DIR)
@@ -19,13 +21,13 @@ run:
 	PYTHONWARNINGS=ignore ${PYTHON} run.py
 
 test-unit:
-	PYTHONPATH=. pytest tests/unit -v
+	PYTHONPATH=. ${PYTEST} tests/unit -v
 
 test-api:
-	PYTHONPATH=. pytest tests/integration -v
+	PYTHONPATH=. ${PYTEST} tests/integration -v
 
 test-all:
-	PYTHONPATH=. pytest tests
+	PYTHONPATH=. ${PYTEST} tests
 
 coverage:
 	PYTHONPATH=. ${PYTHON} --cov=app tests --cov-report=term-missing
@@ -39,4 +41,4 @@ setup-pre-commit:
 	pre-commit autoupdate
 
 run-checks:
-	pre-commit run --all-files
+	${PRE_COMMIT} run --all-files
