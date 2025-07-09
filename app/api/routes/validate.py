@@ -9,10 +9,10 @@ from app.api.security import verify_api_key
 from app.api.validator import DatasetValidator
 from app.core.logger import logger
 
-router = APIRouter()
+router: APIRouter = APIRouter()
 
 
-@router.post("/", dependencies=[Depends(verify_api_key)])
+@router.post("/validate", dependencies=[Depends(verify_api_key)])
 def validate_file(file: UploadFile = File(...)) -> JSONResponse:
     try:
         suffix = os.path.splitext(file.filename)[1]
