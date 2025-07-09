@@ -26,6 +26,7 @@ def valid_rules():
     ]
 
 
+@patch("app.api.validator.os.path.exists", return_value=True)
 @patch("app.api.validator.load_file")
 @patch("app.api.validator.validate_rule_structure")
 @patch("app.api.validator.DataframeValidator")
@@ -49,6 +50,7 @@ def test_run_pipeline_valid_flow(
     mock_DataframeValidator,
     mock_validate_rule_structure,
     mock_load_file,
+    mock_path_exists,
     test_df,
     valid_rules,
 ):
@@ -67,12 +69,12 @@ def test_run_pipeline_valid_flow(
     mock_find_previous_version.return_value = "prev_hash"
 
     # Ejecutar el pipeline
-    validator = DatasetValidator(path="files/sample.csv", enableProfile=True)
-    validator.load_rules = lambda path="": valid_rules
+    validator = DatasetValidator(path="dummy_path.csv", enableProfile=True)
+    validator.load_rules = MagicMock(return_value=valid_rules)
     result = validator.run_pipeline()
 
     # Verifica retorno final
-    assert result == "File files/sample.csv has been validated"
+    assert result == "File dummy_path.csv has been validated"
 
     # Verifica estado interno
     assert validator.is_valid is True
@@ -83,7 +85,8 @@ def test_run_pipeline_valid_flow(
     assert isinstance(validator.data, pd.DataFrame)
 
     # Verifica llamadas clave
-    mock_load_file.assert_called_once_with("files/sample.csv")
+    mock_path_exists.assert_called_once()
+    mock_load_file.assert_called_once_with("dummy_path.csv")
     mock_validate_rule_structure.assert_called_once_with(valid_rules)
     mock_DataframeValidator.assert_called_once()
     mock_validator_instance.apply_rules.assert_called_once_with(valid_rules)
