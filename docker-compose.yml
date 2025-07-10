@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./datasets:/app/datasets
+      - ./metadatas:/app/metadatas
+      - ./reports:/app/reports
+      - ./profiles:/app/profiles
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://backend:8080
+      - API_KEY=supersecreta
+    depends_on:
+      - backend

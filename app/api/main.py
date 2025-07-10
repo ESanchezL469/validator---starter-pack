@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api.routes import dataset, validate
+from app.api.routes import dataset, rules, validate
 from app.init_dirs import create_required_directories
 
 app = FastAPI(
@@ -12,3 +12,4 @@ app = FastAPI(
 create_required_directories()
 app.include_router(validate.router)
 app.include_router(dataset.router)
+app.include_router(rules.router)

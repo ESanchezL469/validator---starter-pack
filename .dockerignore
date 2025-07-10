@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.log
+.venv/
+venv*/
+.git/
+datasets/
+reports/
+metadatas/
+profiles/
+tests/
+README.md
+Makefile
+Dockerfile*

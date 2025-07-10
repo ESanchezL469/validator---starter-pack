@@ -5,6 +5,7 @@ import tempfile
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import JSONResponse
 
+from app.api.schemas.validate import ValidationResult
 from app.api.security import verify_api_key
 from app.api.validator import DatasetValidator
 from app.core.logger import logger
@@ -12,7 +13,16 @@ from app.core.logger import logger
 router: APIRouter = APIRouter()
 
 
-@router.post("/validate/", dependencies=[Depends(verify_api_key)])
+@router.post(
+    "/validate/",
+    summary="Validate uploaded dataset against rules",
+    description="Validates an uploaded CSV or Excel dataset using a specified rules file and returns a validation summary.",
+    tags=["validation"],
+    status_code=200,
+    response_model=ValidationResult,
+    dependencies=[Depends(verify_api_key)],
+    response_description="Result of validating the dataset against specified rules.",
+)
 def validate_file(
     file: UploadFile = File(...), rules_file: str = Query("customer.json")
 ) -> JSONResponse:

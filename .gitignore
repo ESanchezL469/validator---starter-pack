@@ -20,7 +20,6 @@ __pycache__/
 logs/
 *.log
 .env
-.env.*
 *.db
 
 # === Reports and artifacts ===
