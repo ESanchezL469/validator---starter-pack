@@ -81,6 +81,6 @@ make coverage
 
 ## 📦 Ready to Deploy
 
-- [ ] Add Docker support
+- [x] Add Docker support
 - [ ] Deploy to Render/Railway
 - [ ] CLI usage: `python -m validator file.csv`
